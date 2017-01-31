@@ -1,5 +1,7 @@
 package com.example.tassadar.foobar;
 
+import android.util.Log;
+
 import java.util.Random;
 
 /**
@@ -17,10 +19,10 @@ public class GameController {
         int value; // value = 0 <-> empty tile
     }
 
-    public static final int D_LEFT = 0;
-    public static final int D_RIGHT = 1;
-    public static final int D_UP = 2;
-    public static final int D_DOWN = 3;
+    public static final int D_LEFT = -1;
+    public static final int D_RIGHT = +1;
+    public static final int D_UP = -RenderImpl.GRID;
+    public static final int D_DOWN = +RenderImpl.GRID;
 
     Tile[] tiles;
 
@@ -34,7 +36,7 @@ public class GameController {
 
     void restart() {
         // remove all tails
-        for (int i = 0; i < START_TILES; i++) {
+        for (int i = 0; i < TILES_CNT; i++) {
             tiles[i].value = 0;
             tiles[i].id = 0;
         }
@@ -61,11 +63,23 @@ public class GameController {
     }
 
     public void swipe(int direction) {
-        if (direction == D_LEFT) {
-            
+        for(int i = ((TILES_CNT-1) * (int)Math.signum(Math.signum(direction)+1)); (i >= 0) && (i < TILES_CNT); i += -Math.signum(direction)) {
+            if (tiles[i].value == 0) continue;
+
+            int new_pos = i;
+            while ((new_pos+direction >= 0) && (new_pos+direction < TILES_CNT) && ((tiles[new_pos+direction].value == 0) || ((tiles[new_pos+direction].value == 0)))) {
+                if ((direction == D_LEFT) && ((new_pos+direction)%4 == 3)) break;
+                if ((direction == D_RIGHT) && ((new_pos+direction)%4 == 0)) break;
+                // TODO
+                new_pos += direction;
+            }
+
+            if (new_pos != i) {
+                Tile tmp = tiles[new_pos];
+                tiles[new_pos] = tiles[i];
+                tiles[i] = tmp;
+                r.setTilePosition(tiles[new_pos].id, new_pos, true);
+            }
         }
-
-
     }
-
 }

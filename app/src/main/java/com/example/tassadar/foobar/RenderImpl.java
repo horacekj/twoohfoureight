@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 
 import java.util.HashMap;
@@ -211,17 +212,18 @@ public class RenderImpl implements Renderer {
 
     public ObjectAnimator setTilePosition(int id, int position, boolean animate) {
         PlayTile t = m_playTiles.get(id);
-        t.gridIndex = position;
 
         if (animate) {
             ObjectAnimator oa;
-            if (t.getX() == m_gridRects[position].centerX()) {
+
+            if (position/GRID != t.gridIndex/GRID) {
                 // change Y position
                 oa = ObjectAnimator.ofFloat(t, "y", t.getY(), m_gridRects[position].centerY());
             } else {
                 // change X position
                 oa = ObjectAnimator.ofFloat(t, "x", t.getX(), m_gridRects[position].centerX());
             }
+            t.gridIndex = position;
             oa.setDuration(500);
             oa.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -232,6 +234,7 @@ public class RenderImpl implements Renderer {
             oa.start();
             return oa;
         } else {
+            t.gridIndex = position;
             t.setPosition(m_gridRects[position]);
             return null;
         }
